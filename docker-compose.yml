@@ -17,8 +17,8 @@ services:
       - ANONYMOUS_USER=true
     restart: unless-stopped
     volumes:
-      - storage:/var/lib/snipeit
-      #- .:/var/www/html
+      # - storage:/var/lib/snipeit
+      - .:/var/www/html
     ports:
       - "${APP_PORT:-80}:80"
     depends_on:

@@ -1449,4 +1449,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
     )->name('api.files.destroy')
         ->where(['object_type' => 'accessories|assets|components|consumables|hardware|licenses|locations|maintenances|models|suppliers|users|companies|departments']);
 
+    Route::apiResource('scanned-documents', Api\PostController::class);
+
 }); // end API routes

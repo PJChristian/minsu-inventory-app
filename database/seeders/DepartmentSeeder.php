@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company; 
 use App\Models\Department;
 use App\Models\Location;
 use App\Models\User;
@@ -9,6 +10,7 @@ use Illuminate\Database\Seeder;
 
 class DepartmentSeeder extends Seeder
 {
+
     public function run()
     {
         Department::truncate();
@@ -23,10 +25,8 @@ class DepartmentSeeder extends Seeder
         $calapanCampus   = Company::where('name', 'MinSU Calapan Campus')->first();
         $bongabongCampus = Company::where('name', 'MinSU Bongabong Campus')->first();
 
-        // Optional: Find an admin user to act as the department head/manager if needed
-        $admin = User::where('permissions->superuser', '1')->first() ?? User::factory()->firstAdmin()->create();
+        $adminuser = User::where('permissions->superuser', '1')->first() ?? User::factory()->firstAdmin()->create();
 
-        // Build your department array with explicit company mapping
         $departments = [
             [
                 'name'       => 'College of Computer Studies',
@@ -61,16 +61,16 @@ class DepartmentSeeder extends Seeder
         ];
 
         foreach ($departments as $department) {
-            // Find a location specific to this campus to prevent mix-ups
+
             $location = Location::where('company_id', $department['company_id'])->first() ?? Location::first();
 
             Department::create([
                 'name'        => $department['name'],
                 'tag_color'   => $department['tag_color'],
                 'notes'       => $department['notes'],
-                'company_id'  => $department['company_id'], // Standard Snipe-IT field
-                'location_id' => $location?->id,           // Safe fallback location
-                'user_id'     => $admin->id,                // Standard Snipe-IT field for Manager
+                'company_id'  => $department['company_id'], 
+                'location_id' => $location?->id,           
+                'created_by'  => $adminuser->id,              
             ]);
         }
     }

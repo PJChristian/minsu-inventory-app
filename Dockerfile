@@ -125,6 +125,13 @@ RUN mkdir -p /var/www/html/storage/framework/{sessions,views,cache} /var/www/htm
     && chown -R 10000:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y libzip-dev
+
+# Install PHP extensions
+RUN docker-php-ext-install zip
+
+
 CMD ["/startup.sh"]
 
 EXPOSE 80 443

@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Company;
 use App\Models\Location;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -10,21 +11,21 @@ use Illuminate\Support\Facades\Storage;
 
 class LocationSeeder extends Seeder
 {
+    protected $adminuser;
+
     public function run()
     {
         Log::debug('Seed locations');
         
         Location::truncate();
 
-        
         $mainCampus      = Company::where('name', 'MinSU Main Campus')->first();
         $calapanCampus   = Company::where('name', 'MinSU Calapan Campus')->first();
         $bongabongCampus = Company::where('name', 'MinSU Bongabong Campus')->first();
 
-        
-        $admin = User::where('permissions->superuser', '1')->first() ?? User::factory()->firstAdmin()->create();
+        // Assigning the admin user globally within the class run execution
+        $this->adminuser = User::where('permissions->superuser', '1')->first() ?? User::factory()->firstAdmin()->create();
 
-        
         $locations = [
             // --- Main Campus Offices ---
             [
@@ -34,7 +35,7 @@ class LocationSeeder extends Seeder
                 'address'    => 'MinSU Main Campus Base',
             ],
             [
-                'name'       => 'CTE Faculty', // College of Teacher Education
+                'name'       => 'CTE Faculty', 
                 'company_id' => $mainCampus?->id,
                 'city'       => 'Victoria',
                 'address'    => 'CTE Building',
@@ -60,7 +61,7 @@ class LocationSeeder extends Seeder
 
             // --- Calapan Campus Offices ---
             [
-                'name'       => 'CBM Faculty', // College of Business and Management
+                'name'       => 'CBM Faculty', 
                 'company_id' => $calapanCampus?->id,
                 'city'       => 'Calapan City',
                 'address'    => 'CBM Building',
@@ -105,16 +106,22 @@ class LocationSeeder extends Seeder
             ],
         ];
 
-        // Safely loop through and instantiate records directly into the DB using Eloquent
+        // Seed using the updated columns structure
         foreach ($locations as $location) {
             Location::create([
                 'name'       => $location['name'],
                 'company_id' => $location['company_id'],
-                'city'       => $location['city'],
                 'address'    => $location['address'],
-                'state'      => 'Oriental Mindoro',
-                'country'    => 'PH',
-                'user_id'    => $admin->id, // Populates structural creator track
+                'address2'   => null,
+                'city'       => $location['city'],
+                'state'      => 'Oriental Mindoro', 
+                'zip'        => '5200', 
+                'country'    => 'PH', 
+                'currency'   => 'PHP', 
+                'image'      => rand(1, 9) . '.jpg',
+                'tag_color'  => '#' . str_pad(dechex(mt_rand(0, 0xFFFFFF)), 6, '0', STR_PAD_LEFT), 
+                'notes'      => 'Created by DB seeder',
+                'created_by'  => $this->adminuser->id, 
             ]);
         }
     }
