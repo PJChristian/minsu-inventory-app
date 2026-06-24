@@ -609,15 +609,16 @@ class AssetsController extends Controller
         $tag = $tag ? $tag : $request->input('assetTag');
         $topsearch = ($request->input('topsearch') == 'true');
 
-        // Search for an exact and unique asset tag match
-        $assets = Asset::where('asset_tag', '=', $tag);
+        // 1. Query Elasticsearch using the aliased Scout search method
+        $assets = Asset::scoutSearch($tag)->get();
 
-        // If not a unique result, redirect to the index view
-        if ($assets->count() != 1) {
+        // 2. Validate that exactly one unique asset was returned by Elasticsearch
+        if ($assets->count() !== 1) {
             return redirect()->route('hardware.index')
                 ->with('search', $tag)
                 ->with('warning', trans('admin/hardware/message.does_not_exist_var', ['asset_tag' => $tag]));
         }
+
         $asset = $assets->first();
         $this->authorize('view', $asset);
 

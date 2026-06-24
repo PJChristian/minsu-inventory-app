@@ -27,7 +27,6 @@ RUN  apk add --no-cache \
         php84-xmlwriter \
         php84-xmlreader \
         php84-sodium \
-        php84-redis \
         php84-pecl-memcached \
         php84-exif \
         curl \
@@ -38,6 +37,8 @@ RUN  apk add --no-cache \
         tini
 
 COPY docker/column-statistics.cnf /etc/mysql/conf.d/column-statistics.cnf
+
+RUN echo "no\nno\nno\nno\nno\n" | pecl install redis-6.1.0
 
 # Where apache's PID lives
 RUN mkdir -p /run/apache2 && chown apache:apache /run/apache2

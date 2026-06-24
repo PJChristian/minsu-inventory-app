@@ -113,6 +113,18 @@ return [
             ]) : [],
         ],
 
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'host' => env('MONGO_HOST', 'mongodb'),
+            'port' => env('MONGO_PORT', 27017),
+            'database' => env('MONGO_DATABASE', 'inventory_logs'),
+            'username' => env('MONGO_USERNAME', 'admin'),
+            'password' => env('MONGO_PASSWORD', 'secret'),
+            'options' => [
+                'database' => env('MONGO_USERNAME') ? 'admin' : null, // Required if using root admin credentials
+            ],
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', 'localhost'),

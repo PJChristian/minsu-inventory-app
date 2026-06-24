@@ -15,18 +15,18 @@ class LocationFactory extends Factory
     public function definition()
     {
         return [
-            'address' => $this->faker->streetAddress(),
-            'address2' => $this->faker->secondaryAddress(),
-            'city' => $this->faker->city(),
-            'country' => $this->faker->countryCode(),
-            'created_by' => User::factory()->superuser(),
-            'currency' => $this->faker->currencyCode(),
-            'image' => rand(1, 9).'.jpg',
-            'name' => $this->faker->city(),
-            'notes' => 'Created by DB seeder',
-            'state' => $this->faker->stateAbbr(),
-            'tag_color' => $this->faker->hexColor(),
-            'zip' => $this->faker->postcode(),
+            // 'address' => $this->faker->streetAddress(),
+            // 'address2' => $this->faker->secondaryAddress(),
+            // 'city' => $this->faker->city(),
+            // 'country' => $this->faker->countryCode(),
+            // 'created_by' => User::factory()->superuser(),
+            // 'currency' => $this->faker->currencyCode(),
+            // 'image' => rand(1, 9).'.jpg',
+            // 'name' => $this->faker->city(),
+            // 'notes' => 'Created by DB seeder',
+            // 'state' => $this->faker->stateAbbr(),
+            // 'tag_color' => $this->faker->hexColor(),
+            // 'zip' => $this->faker->postcode(),
         ];
     }
 

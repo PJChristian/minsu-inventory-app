@@ -38,11 +38,13 @@
     "guzzlehttp/guzzle": "^7.0.1",
     "intervention/image": "^2.5",
     "javiereguiluz/easyslugger": "^1.0",
+    "jeroen-g/explorer": "^4.5",
     "laravel-notification-channels/google-chat": "^3.0",
     "laravel-notification-channels/microsoft-teams": "^1.2",
     "laravel/framework": "^12.0",
     "laravel/helpers": "^1.4",
     "laravel/passport": "^12.0",
+    "laravel/scout": "^11.3",
     "laravel/slack-notification-channel": "^3.4",
     "laravel/socialite": "^5.6",
     "laravel/tinker": "^2.6",
@@ -50,6 +52,7 @@
     "league/csv": "^9.7",
     "league/flysystem-aws-s3-v3": "^3.0",
     "livewire/livewire": "^4.0",
+    "mongodb/laravel-mongodb": "*",
     "neitanod/forceutf8": "^2.0",
     "nesbot/carbon": "^3.0",
     "nunomaduro/collision": "^8.1",
@@ -134,7 +137,11 @@
     "discard-changes": true,
     "process-timeout": 3000,
     "allow-plugins": {
-      "dealerdirect/phpcodesniffer-composer-installer": true
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "php-http/discovery": true
+    },
+    "platform": {
+      "ext-redis": "6.1.0"
     }
   }
 }

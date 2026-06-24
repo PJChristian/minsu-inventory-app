@@ -11,7 +11,7 @@ use App\Models\Traits\CompanyableTrait;
 use App\Models\Traits\HasUploads;
 use App\Models\Traits\Loggable;
 use App\Models\Traits\Requestable;
-use App\Models\Traits\Searchable;
+use App\Models\Traits\Searchable as SnipeSearchable;
 use App\Presenters\AssetPresenter;
 use App\Presenters\Presentable;
 use Carbon\Carbon;
@@ -24,13 +24,16 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Watson\Validating\ValidatingTrait;
+use Laravel\Scout\Searchable as LaravelScoutSearchable;
+use JeroenG\Explorer\Application\Explored;
+use Laravel\Scout\EngineManager;
 
 /**
  * Model for Assets.
  *
  * @version v1.0
  */
-class Asset extends Depreciable
+class Asset extends Depreciable implements Explored
 {
     protected $presenter = AssetPresenter::class;
 
@@ -172,7 +175,53 @@ class Asset extends Depreciable
         'last_checkout',
     ];
 
-    use Searchable;
+    use SnipeSearchable;
+
+    // 2. Load Scout's search trait without the boot precedence rule mapping
+    use LaravelScoutSearchable {
+        LaravelScoutSearchable::search insteadof SnipeSearchable;
+    }
+
+    
+
+    /**
+     * Custom static method to route traffic cleanly to Elasticsearch via Scout
+     */
+    public static function scoutSearch($query, $callback = null)
+    {
+        // 1. Resolve the active search engine (Elasticsearch via Explorer) from the Laravel container
+        $engine = app(EngineManager::class)->engine();
+        
+        // 2. Initialize a clean Scout Builder query instance manually
+        $builder = new \Laravel\Scout\Builder(new static, $query, $callback);
+        
+        // 3. Return the builder instance so you can chain ->get() onto it in your controller
+        return $builder;
+    }
+
+    /**
+     * Map exactly what payload attributes get indexed into Elasticsearch.
+     */
+    public function toSearchableArray(): array
+    {
+        return [
+            'id'        => (int) $this->id,
+            'asset_tag' => (string) $this->asset_tag,
+            'name'      => (string) $this->name,
+        ];
+    }
+
+    /**
+     * Setup strict data type blueprints for your index structure.
+     */
+    public function mappableAs(): array
+    {
+        return [
+            'id'        => 'keyword',
+            'asset_tag' => 'keyword', 
+            'name'      => 'text',
+        ];
+    }
 
     /**
      * The attributes that should be included when searching the model.

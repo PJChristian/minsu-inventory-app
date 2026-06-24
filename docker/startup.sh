@@ -1,4 +1,13 @@
 #!/bin/bash
+# 1. Fix permissions for Apache User 10000 and www-data
+chown -R 10000:www-data /var/lib/snipeit /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/lib/snipeit /var/www/html/storage /var/www/html/bootstrap/cache
+
+# 2. Clear out old configurations
+cd /var/www/html
+php artisan config:clear
+php artisan cache:clear
+
 
 # Cribbed from nextcloud docker official repo
 # https://github.com/nextcloud/docker/blob/master/docker-entrypoint.sh

@@ -386,6 +386,7 @@ return [
         SnipeTranslationServiceProvider::class, // we REPLACE the default Laravel translator with our own
         ValidationServiceProvider::class,
         ViewServiceProvider::class,
+        JeroenG\Explorer\ExplorerServiceProvider::class,
 
         /*
          * Package Service Providers...

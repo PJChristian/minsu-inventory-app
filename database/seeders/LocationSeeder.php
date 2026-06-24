@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Location;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -11,32 +12,110 @@ class LocationSeeder extends Seeder
 {
     public function run()
     {
+        Log::debug('Seed locations');
+        
         Location::truncate();
-        Location::factory()->count(10)->create();
 
-        $src = public_path('/img/demo/locations/');
-        $dst = 'locations'.'/';
-        $del_files = Storage::files($dst);
+        
+        $mainCampus      = Company::where('name', 'MinSU Main Campus')->first();
+        $calapanCampus   = Company::where('name', 'MinSU Calapan Campus')->first();
+        $bongabongCampus = Company::where('name', 'MinSU Bongabong Campus')->first();
 
-        foreach ($del_files as $del_file) { // iterate files
-            $file_to_delete = str_replace($src, '', $del_file);
-            Log::debug('Deleting: '.$file_to_delete);
-            try {
-                Storage::disk('public')->delete($dst.$del_file);
-            } catch (\Exception $e) {
-                Log::debug($e);
-            }
-        }
+        
+        $admin = User::where('permissions->superuser', '1')->first() ?? User::factory()->firstAdmin()->create();
 
-        $add_files = glob($src.'/*.*');
-        foreach ($add_files as $add_file) {
-            $file_to_copy = str_replace($src, '', $add_file);
-            Log::debug('Copying: '.$file_to_copy);
-            try {
-                Storage::disk('public')->put($dst.$file_to_copy, file_get_contents($src.$file_to_copy));
-            } catch (\Exception $e) {
-                Log::debug($e);
-            }
+        
+        $locations = [
+            // --- Main Campus Offices ---
+            [
+                'name'       => 'Office of the President',
+                'company_id' => $mainCampus?->id,
+                'city'       => 'Victoria',
+                'address'    => 'MinSU Main Campus Base',
+            ],
+            [
+                'name'       => 'CTE Faculty', // College of Teacher Education
+                'company_id' => $mainCampus?->id,
+                'city'       => 'Victoria',
+                'address'    => 'CTE Building',
+            ],
+            [
+                'name'       => 'Cashier',
+                'company_id' => $mainCampus?->id,
+                'city'       => 'Victoria',
+                'address'    => 'Administration Building',
+            ],
+            [
+                'name'       => 'Supply Office',
+                'company_id' => $mainCampus?->id,
+                'city'       => 'Victoria',
+                'address'    => 'Administration Building',
+            ],
+            [
+                'name'       => 'Extension Office',
+                'company_id' => $mainCampus?->id,
+                'city'       => 'Victoria',
+                'address'    => 'Research and Extension Building',
+            ],
+
+            // --- Calapan Campus Offices ---
+            [
+                'name'       => 'CBM Faculty', // College of Business and Management
+                'company_id' => $calapanCampus?->id,
+                'city'       => 'Calapan City',
+                'address'    => 'CBM Building',
+            ],
+            [
+                'name'       => 'Library',
+                'company_id' => $calapanCampus?->id,
+                'city'       => 'Calapan City',
+                'address'    => 'Campus Library Building',
+            ],
+            [
+                'name'       => 'Guidance Office',
+                'company_id' => $calapanCampus?->id,
+                'city'       => 'Calapan City',
+                'address'    => 'Student Services Building',
+            ],
+
+            // --- Bongabong Campus Offices ---
+            [
+                'name'       => 'IT Faculty', 
+                'company_id' => $bongabongCampus?->id,
+                'city'       => 'Bongabong',
+                'address'    => 'CCS Laboratory Building',
+            ],
+            [
+                'name'       => 'Registrar',
+                'company_id' => $bongabongCampus?->id,
+                'city'       => 'Bongabong',
+                'address'    => 'Administration Wing',
+            ],
+            [
+                'name'       => 'Research Office',
+                'company_id' => $bongabongCampus?->id,
+                'city'       => 'Bongabong',
+                'address'    => 'Research and Innovation Hub',
+            ],
+            [
+                'name'       => 'CED Office', 
+                'company_id' => $bongabongCampus?->id,
+                'city'       => 'Bongabong',
+                'address'    => 'Main Academic Block',
+            ],
+        ];
+
+        // Safely loop through and instantiate records directly into the DB using Eloquent
+        foreach ($locations as $location) {
+            Location::create([
+                'name'       => $location['name'],
+                'company_id' => $location['company_id'],
+                'city'       => $location['city'],
+                'address'    => $location['address'],
+                'state'      => 'Oriental Mindoro',
+                'country'    => 'PH',
+                'user_id'    => $admin->id, // Populates structural creator track
+            ]);
         }
     }
 }

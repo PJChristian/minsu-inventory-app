@@ -10,20 +10,24 @@ RUN export DEBIAN_FRONTEND=noninteractive; \
     echo 'tzdata tzdata/Areas select Etc' | debconf-set-selections; \
     echo 'tzdata tzdata/Zones/Etc select UTC' | debconf-set-selections; \
     apt-get update -qqy \
+ && apt-get install -qqy --no-install-recommends software-properties-common gnupg2 ca-certificates \
+ && add-apt-repository ppa:ondrej/php -y \
+ && apt-get update -qqy \
  && apt-get install -qqy --no-install-recommends \
 apt-utils \
 apache2 \
 apache2-bin \
-libapache2-mod-php8.3 \
-php8.3-curl \
-php8.3-ldap \
-php8.3-mysql \
-php8.3-gd \
-php8.3-xml \
-php8.3-mbstring \
-php8.3-zip \
-php8.3-bcmath \
-php8.3-redis \
+libapache2-mod-php8.5 \
+php8.5-curl \
+php8.5-ldap \
+php8.5-mysql \
+php8.5-gd \
+php8.5-xml \
+php8.5-mbstring \
+php8.5-zip \
+php8.5-bcmath \
+php8.5-mongodb \
+php8.5-redis \
 php-memcached \
 patch \
 curl \
@@ -33,28 +37,28 @@ git \
 cron \
 mysql-client \
 supervisor \
-cron \
 gcc \
 make \
 autoconf \
 libc-dev \
 libldap-common \
 pkg-config \
-php8.3-dev \
-ca-certificates \
+php8.5-dev \
 unzip \
 dnsutils \
 && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-
-RUN curl -L -O https://github.com/pear/pearweb_phars/raw/master/go-pear.phar
-RUN php go-pear.phar
-
 RUN phpenmod gd
 RUN phpenmod bcmath
+RUN phpenmod mongodb
+RUN phpenmod redis
+RUN phpenmod zip
 
-RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/8.3/apache2/php.ini
-RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/8.3/cli/php.ini
+RUN mkdir -p /etc/php/8.5/apache2/conf.d/
+
+RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/8.5/apache2/php.ini
+RUN sed -i 's/variables_order = .*/variables_order = "EGPCS"/' /etc/php/8.5/cli/php.ini
+RUN ln -sf /etc/php/8.5/mods-available/mongodb.ini /etc/php/8.5/apache2/conf.d/20-mongodb.ini
 
 RUN useradd -m --uid 10000 --gid 50 docker
 
@@ -65,7 +69,6 @@ COPY docker/000-default.conf /etc/apache2/sites-enabled/000-default.conf
 
 #SSL
 RUN mkdir -p /var/lib/snipeit/ssl
-#COPY docker/001-default-ssl.conf /etc/apache2/sites-enabled/001-default-ssl.conf
 COPY docker/001-default-ssl.conf /etc/apache2/sites-available/001-default-ssl.conf
 
 RUN a2enmod ssl
@@ -80,12 +83,6 @@ COPY docker/column-statistics.cnf /etc/mysql/conf.d/column-statistics.cnf
 ############ INITIAL APPLICATION SETUP #####################
 
 WORKDIR /var/www/html
-
-#Append to bootstrap file (less brittle than 'patch')
-# RUN sed -i 's/return $app;/$env="production";\nreturn $app;/' bootstrap/start.php
-
-#copy all configuration files
-# COPY docker/*.php /var/www/html/app/config/production/
 COPY docker/docker.env /var/www/html/.env
 
 RUN chown -R docker /var/www/html
@@ -110,17 +107,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Get dependencies
 USER docker
-RUN COMPOSER_CACHE_DIR=/dev/null composer install --no-dev --working-dir=/var/www/html && rm -rf /var/www/html/vendor/*/*/.git
+RUN COMPOSER_CACHE_DIR=/dev/null composer install --no-dev --ignore-platform-reqs --working-dir=/var/www/html && rm -rf /var/www/html/vendor/*/*/.git
 USER root
-
-############### APPLICATION INSTALL/INIT #################
-
-#RUN php artisan app:install
-# too interactive! Try something else
-
-#COPY docker/app_install.exp /tmp/app_install.exp
-#RUN chmod +x /tmp/app_install.exp
-#RUN /tmp/app_install.exp
 
 ############### DATA VOLUME #################
 
@@ -132,7 +120,11 @@ COPY docker/startup.sh docker/supervisord.conf /
 COPY docker/supervisor-exit-event-listener /usr/bin/supervisor-exit-event-listener
 RUN chmod +x /startup.sh /usr/bin/supervisor-exit-event-listener
 
+# Created directories and set permissions for user 10000
+RUN mkdir -p /var/www/html/storage/framework/{sessions,views,cache} /var/www/html/storage/logs \
+    && chown -R 10000:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 CMD ["/startup.sh"]
 
-EXPOSE 80
-EXPOSE 443
+EXPOSE 80 443

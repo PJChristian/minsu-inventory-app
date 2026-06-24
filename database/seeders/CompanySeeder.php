@@ -17,9 +17,23 @@ class CompanySeeder extends Seeder
     public function run()
     {
         Log::debug('Seed companies');
+        
+        // Clear existing companies to prevent duplicate entry errors
         Company::truncate();
-        Company::factory()->count(4)->create();
 
+        // Define your exact campus entries instead of using the random factory
+        $campuses = [
+            ['name' => 'MinSU Main Campus'],
+            ['name' => 'MinSU Calapan Campus'],
+            ['name' => 'MinSU Bongabong Campus'],
+        ];
+
+        // Insert the specific records into the database
+        foreach ($campuses as $campus) {
+            Company::create($campus);
+        }
+
+        // --- Keep original image/file copying logic ---
         $src = public_path('/img/demo/companies/');
         $dst = 'companies'.'/';
         $del_files = Storage::files('companies/'.$dst);
