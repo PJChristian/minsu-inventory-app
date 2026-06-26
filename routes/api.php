@@ -1450,5 +1450,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['api', 'api-throttle:api']], fu
         ->where(['object_type' => 'accessories|assets|components|consumables|hardware|licenses|locations|maintenances|models|suppliers|users|companies|departments']);
 
     Route::apiResource('scanned-documents', Api\PostController::class);
+    //http://3.105.199.215/api/v1/companies
+    //http://3.105.199.215/api/v1/models
+    //http://3.105.199.215/api/v1/locations
+    //http://3.105.199.215/api/v1/suppliers
+    //http://3.105.199.215/api/v1/statuslabels
+    //http://3.105.199.215/api/v1/users
+    //http://3.105.199.215/api/v1/users/selectlist?search=Paulo Jay Christian P. De Guzman
 
 }); // end API routes

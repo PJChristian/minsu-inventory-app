@@ -23,8 +23,8 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'company_id' => 'required|integer|exists:companies,id',
-            'office_id' => 'required|integer|exists:locations,id',
+            'company' => 'required|string|max:255',
+            'office' => 'required|string|max:255',
             'pr_number' => 'required|string|max:255',
             'date' => 'required|date',
             'property_number' => 'nullable|string|max:255',
@@ -35,7 +35,7 @@ class StorePostRequest extends FormRequest
             'total_cost' => 'required|numeric|min:0',
             'grand_total' => 'required|numeric|min:0',
             'purpose' => 'required|string',
-            'requested_by' => 'required|integer|exists:users,id',
+            'requested_by' => 'required|string|max:255',
         ];
     }
 }

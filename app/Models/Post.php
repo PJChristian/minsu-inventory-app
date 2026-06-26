@@ -11,8 +11,8 @@ class Post extends Model
     protected $collection = 'scanned_documents';
 
     protected $fillable = [
-        'company_id',
-        'office_id',
+        'company',
+        'office',
         'pr_number',
         'date',
         'property_number',
